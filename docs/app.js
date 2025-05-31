@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: id,
                 title: getTitleFromId(id), // Function to get title based on ID
                 year: getYearFromId(id),   // Function to get year based on ID
-                description: `关于《${getTitleFromId(id)}》的简要介绍...`, // Placeholder description
+                description: getDescriptionFromId(id), // Placeholder description
                 category: articleCategories[id] || 'other',
                 // In a real app, load content dynamically when clicked
                 // background: '...', mainIdeas: '...', summary: '...', links: '...'
@@ -258,6 +258,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return years[id] || '';
     }
 
+    function getDescriptionFromId(id) {
+        const descriptions = {
+            'shijian_lun': '阐述认识来源于实践并指导实践，强调理论与实践的统一。',  
+            'maodun_lun': '分析矛盾的普遍性与特殊性，提出对立统一规律是唯物辩证法的核心。',  
+            'fandui_benbenism': '批判教条主义，提出“没有调查，没有发言权”的著名论断。',  
+            'correct_ideas': '指出正确思想源于社会实践，需经过实践检验。',  
+            'class_analysis': '通过阶级划分明确革命敌友，奠定新民主主义革命理论基础。',  
+            'hunan_report': '肯定农民运动的革命性，强调农民在革命中的重要作用。',  
+            'xingxingzhihuo': '论证革命力量的壮大趋势，鼓舞农村包围城市的信心。',  
+            'zhanlue_wenti': '总结红军作战经验，提出积极防御等军事原则。',  
+            'lun_chijiuzhan': '预见抗日战争将经历三个阶段，最终胜利属于中国。',  
+            'war_strategy': '强调武装斗争是中国革命的主要形式，提出“枪杆子里出政权”。',  
+            'gaizao_xuexi': '反对主观主义学风，倡导理论联系实际的马克思主义态度。',  
+            'zhengdun_dangfeng': '号召整顿党内教条主义和经验主义，树立实事求是的思想路线。',  
+            'fandui_dangbagu': '批判形式主义的文风，提倡生动活泼、群众喜闻乐见的表达方式。',  
+            'xinminzhuzhuyilun': '系统论述新民主主义革命的理论、路线和纲领。',  
+            'lun_lianhe_zhengfu': '提出建立民主联合政府的主张，规划战后中国的政治蓝图。',  
+            'lun_renmin_minzhu_zhuanzheng': '阐明人民民主专政的性质，强调工人阶级领导的政权建设。',  
+            'lun_shida_guanxi': '初步探索中国社会主义建设道路，提出统筹兼顾的经济方针。',  
+            'renmin_neibu_maodun': '区分两类不同性质的矛盾，提出正确处理人民内部矛盾的方法。'  
+        };
+        return descriptions[id] || '未知文章简介';
+    }
+
     function displayArticles(category) {
         articlesContainer.innerHTML = ''; // Clear existing articles
         const filteredArticles = category === 'all' 
@@ -289,8 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showArticleDetail(articleId) {
         try {
             // In a real app, fetch the full markdown content here
-            // const response = await fetch(`../articles/${articleId}.md`);
-            // const markdownContent = await response.text();
+            const response = await fetch(`../articles/${articleId}.md`);
+            const markdownContent = await response.text();
+            const sections = parseMarkdownContent(markdownContent);
             // Parse markdown and populate the detail page elements
             
             // Placeholder: Use existing basic data
@@ -301,9 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
             articleYear.textContent = `(${article.year})`;
             
             // Simulate loading content (replace with actual MD parsing)
-            articleBackground.innerHTML = `<p>关于《${article.title}》创作背景与目的的详细内容...</p>`;
-            articleMainIdeas.innerHTML = `<p>关于《${article.title}》关键思想主旨的详细内容...</p>`;
-            articleSummary.innerHTML = `<p>关于《${article.title}》内容摘要的详细内容...</p>`;
+            articleBackground.innerHTML = sections.background || '暂无背景信息';
+            articleMainIdeas.innerHTML = sections.mainideas || '暂无主要观点';
+            articleSummary.innerHTML = sections.summary || '暂无总结信息';
             articleLinks.innerHTML = `<a href="#" class="text-red-600 hover:underline" target="_blank">查看原文 (示例链接)</a>`;
 
             showPage('article-detail');
@@ -312,6 +337,101 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('加载文章详情失败。');
         }
     }
+
+    // 解析markdown内容为各个部分
+    function parseMarkdownContent(markdown) {
+        const sections = {
+            background: '',
+            mainIdeas: '',
+            summary: '',
+            link: ''
+        };
+        
+        try {
+            console.log("开始解析markdown内容:", markdown.substring(0, 100) + "...");
+            
+            // 提取创作背景与目的
+            const backgroundMatch = markdown.match(/## 创作背景与目的\s+([\s\S]*?)(?=##|$)/);
+            if (backgroundMatch && backgroundMatch[1]) {
+                sections.background = backgroundMatch[1].trim();
+                console.log("成功提取创作背景");
+            } else {
+                console.log("未找到创作背景部分");
+            }
+            
+            // 提取关键思想主旨 - 支持多种可能的标题格式
+            let mainIdeasMatch = markdown.match(/## 关键思想主旨\s+([\s\S]*?)(?=##|$)/);
+            if (!mainIdeasMatch) {
+                mainIdeasMatch = markdown.match(/## 主要思想\s+([\s\S]*?)(?=##|$)/);
+            }
+            if (!mainIdeasMatch) {
+                mainIdeasMatch = markdown.match(/## 核心思想\s+([\s\S]*?)(?=##|$)/);
+            }
+            if (mainIdeasMatch && mainIdeasMatch[1]) {
+                sections.mainIdeas = mainIdeasMatch[1].trim();
+                console.log("成功提取关键思想主旨");
+            } else {
+                console.log("未找到关键思想主旨部分");
+            }
+            
+            // 提取内容摘要 - 支持多种可能的标题格式
+            let summaryMatch = markdown.match(/## 内容摘要\s+([\s\S]*?)(?=##|$)/);
+            if (!summaryMatch) {
+                summaryMatch = markdown.match(/## 主要内容摘要\s+([\s\S]*?)(?=##|$)/);
+            }
+            if (!summaryMatch) {
+                summaryMatch = markdown.match(/## 内容概要\s+([\s\S]*?)(?=##|$)/);
+            }
+            if (summaryMatch && summaryMatch[1]) {
+                sections.summary = summaryMatch[1].trim();
+                console.log("成功提取内容摘要");
+            } else {
+                console.log("未找到内容摘要部分");
+            }
+            
+            // 提取原文链接
+            const linkMatch = markdown.match(/\[.*?\]\((.*?)\)/);
+            if (linkMatch && linkMatch[1]) {
+                sections.link = linkMatch[1].trim();
+                console.log("成功提取原文链接:", sections.link);
+            } else {
+                // 默认链接
+                sections.link = 'https://www.marxists.org/chinese/maozedong/index.htm';
+                console.log("使用默认原文链接");
+            }
+            
+            // 如果没有找到主要思想，尝试从内容摘要中提取
+            if (!sections.mainIdeas && sections.summary) {
+                const firstParagraph = sections.summary.split('\n\n')[0];
+                if (firstParagraph && firstParagraph.length > 50) {
+                    sections.mainIdeas = firstParagraph;
+                    console.log("从内容摘要中提取了主要思想");
+                }
+            }
+            
+            // 如果没有找到内容摘要，尝试从历史意义部分提取
+            if (!sections.summary) {
+                const historyMatch = markdown.match(/## 历史意义\s+([\s\S]*?)(?=##|$)/);
+                if (historyMatch && historyMatch[1]) {
+                    sections.summary = historyMatch[1].trim();
+                    console.log("从历史意义部分提取了内容摘要");
+                }
+            }
+            
+            // 调试输出
+            console.log("解析结果:", {
+                background: sections.background ? sections.background.substring(0, 50) + "..." : "暂无",
+                mainIdeas: sections.mainIdeas ? sections.mainIdeas.substring(0, 50) + "..." : "暂无",
+                summary: sections.summary ? sections.summary.substring(0, 50) + "..." : "暂无",
+                link: sections.link
+            });
+        } catch (e) {
+            console.error('Error parsing markdown:', e);
+        }
+        
+        return sections;
+    }
+
 
     categoryBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
