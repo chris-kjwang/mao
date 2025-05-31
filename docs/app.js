@@ -314,6 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // In a real app, fetch the full markdown content here
             const response = await fetch(`../articles/${articleId}.md`);
+            console.log("response: ", response,"articleid:",articleId);
             const markdownContent = await response.text();
             const sections = parseMarkdownContent(markdownContent);
             // Parse markdown and populate the detail page elements
