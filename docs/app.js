@@ -313,10 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showArticleDetail(articleId) {
         try {
             // In a real app, fetch the full markdown content here
-            // const response = await fetch(`../articles/${articleId}.md`);
-            const baseUrl = "https://chris-kjwang.github.io/articles/";
-            const fullUrl = `${baseUrl}${articleId}.md`;
-            const response = await fetch(fullUrl);
+            const response = await fetch(`../articles/${articleId}.md`);
+            // const baseUrl = "https://chris-kjwang.github.io/articles/";
+            // const fullUrl = `${baseUrl}${articleId}.md`;
+            // const response = await fetch(fullUrl);
             console.log("response: ", response,"articleid:",articleId);
             // 检查响应状态
             if (!response.ok) {
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
             articleYear.textContent = `(${article.year})`;
             
             // Simulate loading content (replace with actual MD parsing)
-            articleBackground.innerHTML = sections.background || '暂无背景信息1';
+            articleBackground.innerHTML = sections.background || '暂无背景信息';
             articleMainIdeas.innerHTML = sections.mainideas || '暂无主要观点';
             articleSummary.innerHTML = sections.summary || '暂无总结信息';
             articleLinks.innerHTML = `<a href="#" class="text-red-600 hover:underline" target="_blank">查看原文 (示例链接)</a>`;
