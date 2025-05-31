@@ -313,8 +313,15 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showArticleDetail(articleId) {
         try {
             // In a real app, fetch the full markdown content here
-            const response = await fetch(`../articles/${articleId}.md`);
+            // const response = await fetch(`../articles/${articleId}.md`);
+            const baseUrl = "https://chris-kjwang.github.io/articles/";
+            const fullUrl = `${baseUrl}${articleId}.md`;
+            const response = await fetch(fullUrl);
             console.log("response: ", response,"articleid:",articleId);
+            // 检查响应状态
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const markdownContent = await response.text();
             const sections = parseMarkdownContent(markdownContent);
             // Parse markdown and populate the detail page elements
